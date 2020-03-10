@@ -7,25 +7,44 @@ import javax.swing.*;
 
 public class AdventureDice {
     public static void main(String[] args) throws IOException {
-        //CharacterCreator c = new CharacterCreator("AdventureDice");
+        //Create ArrayList of Player and Enemy
         ArrayList<Player> playerLi = groupPlayer();
         ArrayList<Enemy> enemyLi = groupEnemy();
-        playerLi = combatFlow(playerLi, enemyLi);
+
+        //Return a player list after a combat
+        combatFlow(playerLi, enemyLi);
         System.exit(0);
     }
 
     public static ArrayList<Player> groupPlayer() {
-        double[] warrior = {16, 6, 6, 8, 3, 4, 5, 3, 12};
-        double[] mage = {10, 14, 3, 3, 9, 6, 4, 3, 5};
-        double[] cleric = {8, 16, 3, 3, 6, 8, 5, 3, 5};
+        //ArrayList of Players
         ArrayList<Player> players = new ArrayList<Player>(3);
-        players.add(new Player_Warrior("Mark", warrior));
-        players.add(new Player_Mage("Tomas", mage));
-        players.add(new Player_Cleric("Edward", cleric));
+
+        //Add three different subclasses of Player into the Player List
+        for(int i = 0; i<3; i++)
+            players.add(randomPlayer());
         return players;
     }
 
-    public static ArrayList<Enemy> groupEnemy() {
+    public static Player randomPlayer() {
+        //Temporary stats for adventurers
+        double[] warrior = {16, 6, 6, 8, 3, 4, 5, 3, 12};
+        double[] mage = {10, 14, 3, 3, 9, 6, 4, 3, 5};
+        double[] cleric = {8, 16, 3, 3, 6, 8, 5, 3, 5};
+
+        //Randomize job
+        switch (Util.diceRoller(1,3)) {
+            case 1:
+                return new Player_Warrior(Util.strInput("Name of the Warrior: "), warrior);
+            case 2:
+                return new Player_Mage(Util.strInput("Name of the Mage: "), mage);
+            case 3:
+                return new Player_Cleric(Util.strInput("Name of the Cleric: "), cleric);
+        }
+        return null;
+    }
+
+    public static ArrayList<Enemy> groupEnemy() {//Same as groupPlayer
         double[] skeleton = {8, 4, 4, 4, 4, 4, 4, 4};
         ArrayList<Enemy> enemies = new ArrayList<Enemy>(3);
         enemies.add(new Enemy_Skeleton(randomEnemyName(), skeleton));
@@ -34,31 +53,27 @@ public class AdventureDice {
         return enemies;
     }
 
-    public static ArrayList<Player> combatFlow(ArrayList<Player> pLi, ArrayList<Enemy> eLi) {
+    public static void combatFlow(ArrayList<Player> pLi, ArrayList<Enemy> eLi) {
         while (pLi.get(0).getHealth()>0 && pLi.get(0).getHealth()>0 && pLi.get(0).getHealth()>0) {
             Player targetP;
             Enemy targetE;
             int target = 0;
-            int counter = 0;
             //Enemy STANCE
             for (Enemy e : eLi) {
-                ArrayList<WildDice> eDices = diceGenerator('e', counter);
+                ArrayList<WildDice> eDices = diceGenerator('e');
                 e.addSpeed();
                 e.addDice(eDices);
                 e.selectTarget();
-                System.out.println(e.getName() + " is targeting " + pLi.get(e.getTarget()).getName() + "\n");
-                counter++;
+                Util.print(e.getName() + " is targeting " + pLi.get(e.getTarget()).getName() + "\n");
             }
             //Player STANCE
-            counter = 0;
             for (Player p: pLi) {
-                ArrayList<WildDice> pDices = diceGenerator('p', counter);
+                p.viewStats();
+                ArrayList<WildDice> pDices = diceGenerator('p');
                 p.addSpeed();
                 p.selectDice(pDices);
                 p.selectTarget(pLi, eLi);
-                counter++;
             }
-            counter = 0;
             //COMBAT
             //Ally turn
             for (int i = 0; i < pLi.size(); i++) {
@@ -88,30 +103,22 @@ public class AdventureDice {
                         break;
                 }
             }
-
-            /*pLi.get(0).setHealth(-20);
-            pLi.get(1).setHealth(-20);
-            pLi.get(2).setHealth(-20);*/
         }
-        print("Party is ded");
-        return pLi;
+        Util.print("Party is dead. GAME OVER");
     }
 
-    public static ArrayList<WildDice> diceGenerator (char type, int n) {
-        if (type == 'p') {
-            print("\nDICE SET " + n + "\n");
-        }
+
+    public static ArrayList<WildDice> diceGenerator (char type) {
         ArrayList<WildDice> wildDices = new ArrayList<WildDice>();
         for (int i = 0; i < 6; i++) {
-            print("DICE " + i);
+            Util.print("DICE " + i);
             wildDices.add(new WildDice(type));
         }
         return wildDices;
     }
 
-    //Random Generators
-    public static String randomEnemyName() {
-        int d40 = diceRoller(0, 39);
+    public static String randomEnemyName() {//Name generator
+        int d40 = Util.diceRoller(0, 39);
         String[] enemyName = {"Moransab","Mavorgezu","Thargha","Zergta","Vresan",
         "Thild'ula","Ha","Fenu","Imilphu","Bucu","Ronba","Nexla","Doomimgash",
         "Ball","Xyal","Grorn","Raruk","Mali","Thanxus","Irath","Rend","Hevorg",
@@ -121,8 +128,8 @@ public class AdventureDice {
         return enemyName[d40]; //Returns a random enemy name
     } //End randomEnemyName
 
-    public static String randomAdjective() {
-        int d50 = diceRoller(0, 49);
+    public static String randomAdjective() {// Adjective generator
+        int d50 = Util.diceRoller(0, 49);
         String[] adjectives = {"scintillating","acceptable","barbarous","flashy",
         "noxious","laughable","normal","hurried","puzzled","oval","overrated",
         "scandalous","dark","bloody","adventurous","lethal","groovy","whole",
@@ -133,18 +140,6 @@ public class AdventureDice {
         "flat","resonant","bumpy","solid","strong","faulty","accidental"};
         return adjectives[d50]; //Returns a random adjective inside the array
     } //End randomAdjective
-
-    //Util Methods
-    public static int diceRoller(int min, int max) {
-        Random random = new Random(); //Creation of an object Random
-        //Gets two integers and returns a random value between the given values
-        return random.nextInt(max + 1 - min) + min;
-    }
-
-    public static void print(String message) {//Just an abbreviation method
-        System.out.println(message);
-        return;
-    }
 
     public static JFrame defaultFrame(String title) {
         JFrame frame = new JFrame(title);

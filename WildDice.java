@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class WildDice extends AdventureDice {
+public class WildDice {
     private String diceNumber = "";
     private String diceType = "";
     private int speedCost;
@@ -9,9 +9,9 @@ public class WildDice extends AdventureDice {
         switch (type) {
             case 'p':
                 diceCreation();
-                System.out.println("The dice are " + diceNumber);
-                System.out.println("The types are " + diceType);
-                System.out.println("And the Speed Cost is " + speedCost + "\n");
+                Util.print("The dice are " + diceNumber);
+                Util.print("The types are " + diceType);
+                Util.print("And the Speed Cost is " + speedCost + "\n");
                 break;
             case 'e':
                 diceCreation();
@@ -27,7 +27,7 @@ public class WildDice extends AdventureDice {
     }
 
     private void rollNumber() {
-        int roll = AdventureDice.diceRoller(1, 100);
+        int roll = Util.diceRoller(1, 100);
         if (5 >= roll) {
             diceNumber += "D20,";
             speedCost += 8;
@@ -47,7 +47,7 @@ public class WildDice extends AdventureDice {
     }
 
     private void rollType() {
-        int roll = AdventureDice.diceRoller(1, 100);
+        int roll = Util.diceRoller(1, 100);
         if (5 >= roll) {
             diceType += "Violet,";
         } else if (12 >= roll) {
@@ -67,7 +67,7 @@ public class WildDice extends AdventureDice {
 
     private void addDice() {
         if(speedCost < 8) {
-            int roll = diceRoller(1, 2);
+            int roll = Util.diceRoller(1, 2);
             if(roll == 2) {
                 rollNumber();
                 rollType();

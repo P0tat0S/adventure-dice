@@ -178,12 +178,20 @@ public class MainMenu extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         switch(e.getActionCommand()) {
             case "NG":
-                System.out.println("You created a new game");
-                AdventureDice.main(args);
+                try {
+                    System.out.println("You created a new game");
+                    AdventureDice.main(args);
+                } catch(Exception f) {
+                    System.exit(0);
+                }
                 break;
             case "LG":
-                System.out.println("You loaded a game");
-                AdventureDice.main(args);
+                try {
+                    System.out.println("You loaded a game");
+                    AdventureDice.main(args);
+                } catch(Exception d) {
+                    System.exit(0);
+                }
                 break;
             case "O":
                 System.out.println("Not Implemented");
