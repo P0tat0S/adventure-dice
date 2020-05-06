@@ -1,8 +1,10 @@
 import java.util.*;
+import java.io.*;
 
-abstract class Entity {
+abstract class Entity implements Serializable {
     //Entity main info
     protected String name;
+    protected String job;
     protected int level;
     //Entity level system;
     protected double xp;
@@ -27,9 +29,11 @@ abstract class Entity {
     protected boolean skip;
     protected double combatSpeed;
     protected int actionNumber;
+    //Entity Base stats
+    protected double[] baseStats;
 
     //Constructor
-    public Entity(String n, double[] stats) {
+    public Entity(String n, double[] stats, String role) {
         if(this instanceof Player) {
             name = n;
             level = 1;                 speed = stats[8];
@@ -39,6 +43,7 @@ abstract class Entity {
             strength = stats[2];       vitality = stats[3];
             intelligence = stats[4];   mind = stats[5];
             dexterity = stats[6];      luck = stats[7];
+            baseStats = stats.clone(); job = role;
         } else {
             name = n;
             level = 1;
@@ -47,31 +52,32 @@ abstract class Entity {
             strength = stats[2];       vitality = stats[3];
             intelligence = stats[4];   mind = stats[5];
             dexterity = stats[6];      speed = stats[7];
+            baseStats = stats.clone(); job = role;
         }
-    }
+    }//End of the Constructor
 
     /***********
     DICE METHODS
     ***********/
-    protected void addEffect(ArrayList<WildDice> wd, int choice) {
-        double rD = 0;
-        if(wd.get(choice).getDiceNumber().length() > 4) {
+    protected void addEffect(ArrayList<WildDice> wd, int choice) {//Add the dice effect
+        double rD = 0;//Store the rolled value
+        if(wd.get(choice).getDiceNumber().length() > 4) {//String parser for multiple dice
             String[] dN = wd.get(choice).getDiceNumber().split(",");
             String[] dT = wd.get(choice).getDiceType().split(",");
-            for(int i = 0; dN.length > i; i++) {
+            for(int i = 0; dN.length > i; i++) {//Depending on how many dice you get and action
                 rD = confirmDice(dN[i]);
                 rollDice(dT[i], rD);
                 actionNumber++;
             }
-        } else {
+        } else {//This else statement is for only one die
             rD = confirmDice(wd.get(choice).getDiceNumber());
             rollDice(wd.get(choice).getDiceType(), rD);
             actionNumber++;
         }
-    }
+    }//End addEffect
 
     private double confirmDice(String diceNumber) {
-        switch (diceNumber) {
+        switch (diceNumber) {//Different bonus for each die
             case "D20":
                 return 2*Util.diceRoller(1, 20);
             case "D12":
@@ -100,8 +106,11 @@ abstract class Entity {
                 if(this instanceof Player) {
                     luck = luck*(1+rolledNum/20);
                     Util.print(this.getName() + " new luck " + dexterity);
-                } else {
-
+                } else {//Monsters don't have luck
+                    dexterity = dexterity*(1+rolledNum/40);
+                    Util.print(this.getName() +" new dexterity " + dexterity);
+                    strength = strength*(1+rolledNum/40);
+                    Util.print(this.getName() + " new strength " + strength);
                 }
                 break;
             case "White":
@@ -126,55 +135,56 @@ abstract class Entity {
     /*************
     COMBAT METHODS
     *************/
-    public Player performActionP(Player p) {
-        if(skip == true) { skip = false; return p; }
+    public void actionOnPlayer(Player p) {
         while(actionNumber > 0) {
-            switch(Util.intInput("\n1 to Attack" + "\n2 to Defend"
-            + "\n3 to Cast Magic" + "\n4 to Heal")) {
+            switch(Util.intInput("\n1 to Attack" + "\n2 to Defend" + "\n3 to Cast Magic" + "\n4 to Heal")) {
                 case 1:
-                    p.setHealth(attack(p.getVitality()));
+                    attack(p);
                     Util.print(p.getName() + " Remaining health is " + p.getHealth());
                     break;
                 case 2:
-                    defend();
+                    defend(p);
                     break;
                 case 3:
-                    magic();
+                    magic(p);
+                    Util.print(p.getName() + " Remaining health is " + p.getHealth());
                     break;
                 case 4:
-                    heal();
+                    heal(p);
+                    if(this instanceof Enemy)
+                        Util.print(name + " Remaining health is " + health);
+                    else
+                        Util.print(p.getName() + " Remaining health is " + p.getHealth());
                     break;
                 default:
-                    Util.print("Thanks for not complying");
-                    System.exit(0);
+                    Util.print("You skip turn");
                     break;
             }
             actionNumber--;
         }
-        return p;
     }
 
-    public Enemy performActionE(Enemy e) {
-        if(skip == true) { skip = false; return e; }
+    public Enemy actionOnEnemy(Enemy e) {
+        Util.print(name + "'s Turn");
         while(actionNumber > 0) {
-            switch(Util.intInput("\n1 to attack" + "\n2 to Defend"
-            + "\n3 to cast Magic" + "\n4 to Heal")) {
+            switch(Util.intInput("\n1 to attack" + "\n2 to Defend" + "\n3 to cast Magic" + "\n4 to Heal")) {
                 case 1:
-                    e.setHealth(attack(e.getVitality()));
+                    attack(e);
                     Util.print(e.getName() + " Remaining health is " + e.getHealth());
                     break;
                 case 2:
-                    defend();
+                    defend(e);
                     break;
                 case 3:
-                    magic();
+                    magic(e);
+                    Util.print(e.getName() + " Remaining health is " + e.getHealth());
                     break;
                 case 4:
-                    heal();
+                    heal(e);
+                    Util.print(e.getName() + " Remaining health is " + e.getHealth());
                     break;
                 default:
-                    Util.print("Thanks for not complying");
-                    System.exit(0);
+                    Util.print("You skip turn");
                     break;
             }
             actionNumber--;
@@ -182,38 +192,49 @@ abstract class Entity {
         return e;
     }
 
-    public void addSpeed() {
+    public void normalise() {//Return all base stats of players and enemies
+        if(this instanceof Player) {
+            speed = baseStats[8];          luck = baseStats[7];
+            strength = baseStats[2];       vitality = baseStats[3];
+            intelligence = baseStats[4];   mind = baseStats[5];
+            dexterity = baseStats[6];      skip = false;
+        } else {
+            strength = baseStats[2];       vitality = baseStats[3];
+            intelligence = baseStats[4];   mind = baseStats[5];
+            dexterity = baseStats[6];      speed = baseStats[7];    skip = false;
+        }
+    }
+
+    public void addSpeed() {//Simple method that acts as a counter to add speed
         combatSpeed += speed;
     }
 
-    public double attack(double vit) {
+    public void attack(Entity en) {
         Util.print(name + " is Attacking...");
-        double damage = strength * (1-vit/100);
-        return -damage;
+        double damage = 0;
+        double critical = (double)Util.diceRoller(1,100);
+        if(critical + getDexterity()/4 > 95) {
+            damage = 2 * getStrength() * (1-en.getVitality()/100);
+            en.setHealth(-damage);
+        } else {
+            damage = getStrength() * (1-en.getVitality()/100);
+            en.setHealth(-damage);
+        }
     }
 
-    public void defend() {
-        if(this instanceof Player_Villager)
-            Util.print("");
-        else
-            Util.print("It was not able to Defend");
-        return;
+    public void defend(Entity en) {
+        Util.print("You enter in a defensive stance");
+        vitality *= 4;
+        Util.print("New vitality: " + vitality);
     }
 
-    public void magic() {
-        if(this instanceof Player_Mage)
-            Util.print("");
-        else
-            Util.print("It was not able to cast Magic");
-        return;
+    public void magic(Entity en) {
+        Util.print("It was not able to cast magic");
     }
 
-    public void heal() {
-        if(this instanceof Player_Cleric)
-            Util.print("");
-        else
-            Util.print("It was not able to cast Heal");
-        return;
+    public void heal(Entity en) {
+        Util.print(name + " takes a turn to heal up");
+        health += maxHealth/20;
     }
 
     /*************
@@ -221,6 +242,10 @@ abstract class Entity {
     *************/
     public void setHealth(double n) {
         health += n;
+    }
+    
+    public void setMagicka(double n ) {
+        magicka += n;
     }
 
     /*************
@@ -238,4 +263,6 @@ abstract class Entity {
     public double getDexterity() { return dexterity;}
     public double getLuck() { return luck;}
     public double getSpeed() { return speed;}
+    public boolean getSkip() { return skip;}
+    public String getJob() { return job;}
 }

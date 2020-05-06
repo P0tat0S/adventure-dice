@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=Player_Mage
+comment1.params=n\ stats\ job
+comment1.target=Player_Mage(java.lang.String,\ double[],\ java.lang.String)
+comment2.params=en
+comment2.target=void\ attack(Entity)
+comment3.params=en
+comment3.target=void\ defend(Entity)
+comment4.params=en
+comment4.target=void\ magic(Entity)
+comment5.params=n
+comment5.target=void\ setHealth(double)
+numComments=6

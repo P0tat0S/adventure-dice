@@ -1,0 +1,11 @@
+#BlueJ class context
+comment0.target=combatFrame
+comment1.params=pLi\ eLi
+comment1.target=combatFrame(java.util.ArrayList,\ java.util.ArrayList)
+comment2.params=e
+comment2.target=void\ actionPerformed(java.awt.event.ActionEvent)
+comment3.params=job
+comment3.target=java.lang.String\ characterImage(java.lang.String)
+comment4.params=job
+comment4.target=java.lang.String\ enemyImage(java.lang.String)
+numComments=5

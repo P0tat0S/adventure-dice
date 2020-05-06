@@ -1,0 +1,5 @@
+#BlueJ class context
+comment0.target=Enemy_Skeleton
+comment1.params=n\ stats\ job
+comment1.target=Enemy_Skeleton(java.lang.String,\ double[],\ java.lang.String)
+numComments=2

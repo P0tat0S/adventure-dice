@@ -7,19 +7,19 @@ abstract class Enemy extends Entity {
     private int counter;
 
     //Constructor
-    public Enemy(String n, double[] stats) {
-        super(n, stats);
+    public Enemy(String n, double[] stats, String job) {
+        super(n, stats, job);
     }
 
     //WildDice Method
     public void addDice(ArrayList<WildDice> wd) {
         int choice = 0;
         boolean valid = false;
-        while(!valid) {
+        while(!valid) {//Loop until enemy chooses a usable dice, if not able skip turn
             choice = Util.diceRoller(0,5);
             if (wd.get(choice).getSpeedCost() <= combatSpeed) {
                 valid = true;
-            } else if (counter > 60) {
+            } else if (counter > 50) {
                 Util.print("\nThe enemy has decided to skip turn.");
                 choice = -1;
                 valid = true;
@@ -28,7 +28,7 @@ abstract class Enemy extends Entity {
         }
 
         counter = 0;
-        if(choice == -1) {
+        if(choice == -1) {//Enemy skips turn and gains more speed
             addSpeed();
             skip = true;
         } else {
@@ -39,55 +39,46 @@ abstract class Enemy extends Entity {
     /*************
     COMBAT METHODS
     *************/
-    public Player performActionP(Player p) {
-        if(skip == true) { skip = false; return p; }
+    public void actionOnPlayer(Player p) {
         while(actionNumber > 0) {
-            switch(1) {
+            switch(Util.diceRoller(1,3)) {
                 case 1:
-                    p.setHealth(attack(p.getVitality()));
+                    attack(p);
                     Util.print(p.getName() + " Remaining health is " + p.getHealth());
                     break;
                 case 2:
-                    defend();
+                    attack(p);
+                    Util.print(p.getName() + " Remaining health is " + p.getHealth());
                     break;
                 case 3:
-                    magic();
-                    break;
-                case 4:
-                    heal();
+                    heal(p);
+                    Util.print(p.getName() + " Remaining health is " + p.getHealth());
                     break;
             }
             actionNumber--;
         }
-        return p;
     }
 
-    public Enemy performActionE(Enemy e) {
-        if(skip == true) { skip = false; return e; }
-        while(actionNumber > 0) {
-            switch(1) {
-                case 1:
-                    e.setHealth(attack(e.getVitality()));
-                    Util.print(e.getName() + " Remaining health is " + e.getHealth());
-                    break;
-                case 2:
-                    defend();
-                    break;
-                case 3:
-                    magic();
-                    break;
-                case 4:
-                    heal();
-                    break;
-            }
-            actionNumber--;
-        }
-        return e;
-    }
-
-    public void selectTarget() {
+    public void selectTarget() {//Enemy randomly selects a player
         target = Util.diceRoller(0,2);
         targetType = 'p';
+    }
+
+    public double givenXP() {
+        return maxHealth/2 + maxMagicka/2 + strength + vitality + intelligence + mind + dexterity + speed;
+    }
+    
+    public String JStats() {
+        String stats = ("Name: " + name + 
+            "\nLevel: " + level +
+            "\nHealth: " + health +
+            "\nMagicka:" + magicka +
+            "\nStrength: " + strength +
+            "\nVitality: " + vitality +
+            "\nIntelligence: " + intelligence +
+            "\nMind: " + mind +
+            "\nDexterity: " + dexterity);
+        return stats;
     }
 
     /*************

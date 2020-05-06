@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=Player_Paladin
+comment1.params=n\ stats\ job
+comment1.target=Player_Paladin(java.lang.String,\ double[],\ java.lang.String)
+comment2.params=en
+comment2.target=void\ attack(Entity)
+comment3.params=en
+comment3.target=void\ defend(Entity)
+comment4.params=en
+comment4.target=void\ magic(Entity)
+comment5.params=en
+comment5.target=void\ heal(Entity)
+comment6.params=n
+comment6.target=void\ setHealth(double)
+numComments=7

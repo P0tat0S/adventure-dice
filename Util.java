@@ -1,4 +1,8 @@
 import java.util.*;
+import java.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 public class Util {
     //Utility Methods
@@ -48,5 +52,10 @@ public class Util {
             }
         }
         return input;
+    }
+    
+    public static void pause() {//Method to pause
+        String lost = strInput("\nPress Enter to continue...\n");
+        return;
     }
 }

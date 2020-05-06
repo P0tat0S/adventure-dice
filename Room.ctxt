@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=Room
+comment1.params=pLi
+comment1.target=Room(java.util.ArrayList)
+comment2.params=pLi
+comment2.target=void\ enterCombat(java.util.ArrayList)
+comment3.params=pLi
+comment3.target=void\ enterRest(java.util.ArrayList)
+comment4.params=pLi
+comment4.target=void\ enterTreasure(java.util.ArrayList)
+comment5.params=pLi
+comment5.target=void\ enterTrap(java.util.ArrayList)
+numComments=6

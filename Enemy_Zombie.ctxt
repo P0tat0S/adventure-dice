@@ -1,0 +1,7 @@
+#BlueJ class context
+comment0.target=Enemy_Zombie
+comment1.params=n\ stats\ job
+comment1.target=Enemy_Zombie(java.lang.String,\ double[],\ java.lang.String)
+comment2.params=en
+comment2.target=void\ heal(Entity)
+numComments=3
